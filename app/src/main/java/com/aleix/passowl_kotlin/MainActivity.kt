@@ -1,6 +1,5 @@
 package com.aleix.passowl_kotlin
 
-import android.content.Context
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -66,10 +65,6 @@ class MainActivity : AppCompatActivity() {
 
         val encryptedBytes = cipher.doFinal(temp.toByteArray(Charsets.UTF_8))
 
-        getPreferences(Context.MODE_PRIVATE).edit().putString("IV", ivBytes.toString(Charsets.UTF_8))
-        getPreferences(Context.MODE_PRIVATE).edit().putString("Data", encryptedBytes.toString(Charsets.UTF_8))
-        getPreferences(Context.MODE_PRIVATE).edit().apply()
-
         return Pair(ivBytes, encryptedBytes) // Here we return the IV and the encrypted bytes, making it different to every user
     }
 
@@ -85,14 +80,14 @@ class MainActivity : AppCompatActivity() {
     fun buttonEncrypt(view: View) {
         var input = passwordInput.text.toString()
         var result = encryptData(input)
-        passTextEncrypted.setText(getPreferences(Context.MODE_PRIVATE).getString("IV", "def"))
-        passTextDecrypted.setText(getPreferences(Context.MODE_PRIVATE).getString("Data", "def"))
+        passTextEncrypted.setText(result.first.toString())
+        passTextDecrypted.setText(result.second.toString())
 
         //var dataFirst = ByteArray(result.first.size) {result.first.toString(Charsets.UTF_8).toByte()}
         //var dataSecond = ByteArray(result.second.size) {result.second.toString(Charsets.UTF_8).toByte()}
 
-        //var decrypted = decryptData(result.first, result.second)
-        //passTextDecrypted.setText(decrypted)
+        var decrypted = decryptData(result.first, result.second)
+        passTextDecrypted.setText(decrypted)
 
     }
 
