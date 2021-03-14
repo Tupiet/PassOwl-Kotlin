@@ -1,5 +1,6 @@
 package com.aleix.passowl_kotlin
 
+import android.content.Context
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -7,6 +8,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.aleix.tupi_library.TupiLibrary
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun encryptData(data: String):Pair<ByteArray, ByteArray> {
+
         val cipher = Cipher.getInstance("AES/CBC/NoPadding")
         var temp = data
         while (temp.toByteArray().size % 16 != 0) // We need temp to be 16 bytes, and now er're making sure it's correct
@@ -64,6 +67,17 @@ class MainActivity : AppCompatActivity() {
         val ivBytes = cipher.iv // This is the initialization vector. Search Wikipedia for more info
 
         val encryptedBytes = cipher.doFinal(temp.toByteArray(Charsets.UTF_8))
+
+        val context = this.getApplicationContext()
+
+        context.openFileOutput("savedIV.dat", Context.MODE_PRIVATE).use {
+            it.write(ivBytes)
+        }
+
+        context.openFileOutput("savedData.dat", Context.MODE_PRIVATE).use {
+            it.write(encryptedBytes)
+        }
+
 
         return Pair(ivBytes, encryptedBytes) // Here we return the IV and the encrypted bytes, making it different to every user
     }
@@ -78,15 +92,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buttonEncrypt(view: View) {
+
         var input = passwordInput.text.toString()
         var result = encryptData(input)
-        passTextEncrypted.setText(result.first.toString())
-        passTextDecrypted.setText(result.second.toString())
 
-        //var dataFirst = ByteArray(result.first.size) {result.first.toString(Charsets.UTF_8).toByte()}
-        //var dataSecond = ByteArray(result.second.size) {result.second.toString(Charsets.UTF_8).toByte()}
+        val context = this.getApplicationContext()
 
-        var decrypted = decryptData(result.first, result.second)
+        val fileIV = File(context.filesDir, "savedIV.dat")
+        val contentIV = fileIV.readBytes()
+
+        val fileData = File(context.filesDir, "savedData.dat")
+        val contentData = fileData.readBytes()
+
+        var decrypted = decryptData(contentIV, contentData)
         passTextDecrypted.setText(decrypted)
 
     }
