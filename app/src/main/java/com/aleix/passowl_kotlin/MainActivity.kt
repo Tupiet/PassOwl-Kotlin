@@ -25,10 +25,10 @@ class MainActivity : AppCompatActivity() {
 
         generateKey() // Here we generate the key
 
-        val encrypted = encryptData("Hello world!")
-        val decrypted = decryptData(encrypted.first, encrypted.second)
+        //val encrypted = encryptData("Hello world!")
+        //val decrypted = decryptData(encrypted.first, encrypted.second)
 
-        tupiLibrary.alert(this, encrypted.toString(), decrypted)
+        //tupiLibrary.alert(this, encrypted.toString(), decrypted)
     }
 
     // Here, we're gonna generate a key and we're gonna save it in the KeyStore
@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         val encryptedBytes = cipher.doFinal(temp.toByteArray(Charsets.UTF_8))
 
+        // Now I'm saving this into a file
         val context = this.getApplicationContext()
 
         context.openFileOutput("savedIV.dat", Context.MODE_PRIVATE).use {
@@ -94,8 +95,12 @@ class MainActivity : AppCompatActivity() {
     fun buttonEncrypt(view: View) {
 
         var input = passwordInput.text.toString()
-        var result = encryptData(input)
+        encryptData(input)
+    }
 
+
+    fun loadData(view: View) {
+        //Here I'm getting the values saved
         val context = this.getApplicationContext()
 
         val fileIV = File(context.filesDir, "savedIV.dat")
@@ -106,7 +111,6 @@ class MainActivity : AppCompatActivity() {
 
         var decrypted = decryptData(contentIV, contentData)
         passTextDecrypted.setText(decrypted)
-
     }
 
 
